@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { PlaceData } from '../types';
+import { PlaceData } from '../../types';
 import { scrapeEmailsFromWebsite } from './websiteScraper';
 
 export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]> {

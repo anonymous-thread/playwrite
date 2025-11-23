@@ -1,5 +1,5 @@
 import { IProcessor, Processor } from './registry';
-import { scrapeGoogleMaps } from '../scraper/googleMaps';
+import { scrapeGoogleMaps } from '../scraper/googleMap/googleMaps';
 import { writeToCsv } from '../utils/csvWriter';
 
 @Processor('googlemap')
