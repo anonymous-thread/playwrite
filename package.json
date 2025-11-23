@@ -19,6 +19,7 @@
     "commander": "^14.0.2",
     "csv-writer": "^1.6.0",
     "dotenv": "^17.2.3",
+    "googleapis": "^166.0.0",
     "minimist": "^1.2.8",
     "playwright": "^1.56.1"
   },
