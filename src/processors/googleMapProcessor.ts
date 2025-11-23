@@ -21,6 +21,7 @@ export class GoogleMapProcessor implements IProcessor {
   async run(options: Record<string, any>): Promise<void> {
     let queryArr: string[] = [];
     const query = options.query;
+    const toNotSaveInFile = options.toNotSaveInFile && "false";
     
     if (!query) {
       console.log('Missing: "query" option is not given, moving forward with spreadsheet.');
@@ -39,7 +40,7 @@ export class GoogleMapProcessor implements IProcessor {
         
         const data = await scrapeGoogleMaps(currentQuery);
         
-        if (data.length > 0) {
+        if (data.length > 0 && toNotSaveInFile !== "true") {
           console.log(`Found ${data.length} places.`);
           const filename = queryArr.length > 1 
             ? `output-${i + 1}.csv` 
