@@ -1,29 +1,49 @@
-import { scrapeGoogleMaps } from './scraper/googleMaps';
-import { writeToCsv } from './utils/csvWriter';
+import { Command } from 'commander';
+import minimist from 'minimist';
+import { ProcessorRegistry } from './processors';
 
-async function main() {
-  const searchQuery = process.argv[2];
+const program = new Command();
 
-  if (!searchQuery) {
-    console.error('Please provide a search query as an argument.');
-    console.error('Usage: npm run dev "Search Query"');
-    process.exit(1);
-  }
-
-  console.log(`Starting scraper for query: "${searchQuery}"...`);
-
-  try {
-    const data = await scrapeGoogleMaps(searchQuery);
+program
+  .version('1.0.0')
+  .description('Web scraper CLI')
+  .requiredOption('-p, --processor <type>', 'Processor to use (e.g., googlemap)')
+  .allowUnknownOption()
+  .argument('[args...]') // Capture all other arguments
+  .action(async (args, options) => {
+    // If options is undefined, it might be because of argument shifting. 
+    // Commander passes (args, options, command) or (options, command) depending on arguments.
+    // Let's rely on parsing process.argv manually for dynamic args to be safe.
     
-    if (data.length > 0) {
-      console.log(`Found ${data.length} places.`);
-      await writeToCsv(data, 'output.csv');
-    } else {
-      console.log('No places found.');
+    // Actually, when .argument is used, the first param is the argument.
+    // But we want to support flags like --query="...".
+    // .allowUnknownOption() lets them pass, but they might not be in 'options' if not defined.
+    
+    // Let's simplify: just use commander for processor, and minimist for everything else.
+    // We need to access the processor option.
+    
+    const opts = program.opts();
+    const processor = opts.processor;
+    
+    // Parse all arguments using minimist to get dynamic flags
+    
+    const parsedArgs = minimist(process.argv.slice(2));
+    
+    
+    // Remove known args handled by commander (if any overlap, though here we just want the rest)
+    // Actually, minimist parses everything. We can just pass the whole args object 
+    // or filter out 'processor' and aliases.
+    // The processor might expect specific keys like 'query'.
+    
+    const processorInstance = ProcessorRegistry.get(processor);
+    
+    if (!processorInstance) {
+      console.error(`Error: Processor "${processor}" not found.`);
+      console.error('Available processors:', 'googlemap');
+      process.exit(1);
     }
-  } catch (error) {
-    console.error('An error occurred:', error);
-  }
-}
 
-main();
+    await processorInstance.run(parsedArgs);
+  });
+
+program.parse(process.argv);
