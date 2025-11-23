@@ -26,9 +26,32 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
     const feed = await page.$('div[role="feed"]');
     if(feed){
         // Scroll to load more results
-        for(let i=0; i<5; i++){
+        // Scroll to load more results
+        let lastHeight = await page.evaluate((feedDiv) => feedDiv.scrollHeight, feed);
+        let noChangeCount = 0;
+
+        while (true) {
             await page.evaluate((feedDiv) => feedDiv.scrollTop += feedDiv.scrollHeight, feed);
-            await page.waitForTimeout(1000);
+            await page.waitForTimeout(2000);
+            
+            const newHeight = await page.evaluate((feedDiv) => feedDiv.scrollHeight, feed);
+            if (newHeight === lastHeight) {
+                noChangeCount++;
+                if (noChangeCount >= 3) {
+                    console.log("Reached end of list or no more items loading.");
+                    break;
+                }
+                console.log("No new items loaded, retrying...");
+            } else {
+                noChangeCount = 0;
+                lastHeight = newHeight;
+                // Optional: Check if "You've reached the end of the list" is visible
+                const endOfList = await page.$('span:has-text("You\'ve reached the end of the list")');
+                if (endOfList) {
+                    console.log("End of list detected.");
+                    break;
+                }
+            }
         }
         
         // Get all items first
@@ -54,56 +77,49 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
         // Let's try a simpler approach first: Extract what is visible on the card.
         // Phone and Website are usually NOT on the card in the list view. They require a click.
         
-        // Re-query items in the loop to avoid stale elements
-        for (let i = 0; i < items.length; i++) {
-             // Re-select feed to ensure it's not stale
-             const currentFeed = await page.$('div[role="feed"]');
-             if(!currentFeed) {
-                 console.log("Feed lost. Trying to find it again...");
-                 await page.waitForSelector('div[role="feed"]', { timeout: 5000 }).catch(() => {});
-             }
-             const activeFeed = await page.$('div[role="feed"]');
-             if(!activeFeed) break;
+        // Collect all URLs first
+        const allItems = await feed.$$('div[role="article"]');
+        console.log(`Found ${allItems.length} items. Collecting URLs...`);
+        
+        const placeUrls: string[] = [];
+        for (const item of allItems) {
+            const anchor = await item.$('a');
+            if (anchor) {
+                const href = await anchor.getAttribute('href');
+                if (href) placeUrls.push(href);
+            }
+        }
+        console.log(`Collected ${placeUrls.length} URLs. Starting detailed scraping...`);
 
-             const currentItems = await activeFeed.$$('div[role="article"]');
-             if(i >= currentItems.length) break;
-             
-             const item = currentItems[i];
-             const ariaLabel = await item.getAttribute('aria-label');
-             if(!ariaLabel) continue;
-             
-             console.log(`Processing: ${ariaLabel}`);
+        // Close the main search page to save resources, or keep it open if needed. 
+        // We can close it since we have the URLs.
+        await page.close();
 
-             // Scroll item into view
-             try {
-                await item.scrollIntoViewIfNeeded();
-                await item.click();
-             } catch(e) {
-                 console.log(`Error clicking item ${ariaLabel}: ${e}`);
-                 continue;
-             }
+        // Process URLs
+        for (const url of placeUrls) {
+             console.log(`Processing URL: ${url}`);
+             const newPage = await context.newPage();
              
-             // Wait for details to load. Look for a known element in details pane, e.g., the title or actions.
              try {
-                 await page.waitForSelector(`h1:has-text("${ariaLabel}")`, { timeout: 5000 });
-             } catch(e) {
-                 console.log(`Could not open details for ${ariaLabel}`);
-                 // Try to go back if we are stuck
-                 const backBtn = await page.$('button[aria-label="Back"]');
-                 if(backBtn) await backBtn.click();
-                 continue;
-             }
-             
-             // Extract Phone
-             let phone: string | undefined;
-             try {
-                 const phoneBtn = await page.$('button[data-item-id^="phone:"]');
-                 if(phoneBtn) {
-                    const label = await phoneBtn.getAttribute('aria-label');
-                    phone = label || undefined;
-                    if(phone) phone = phone.replace('Phone: ', '').trim();
-                 } else {
-                     const buttons = await page.$$('button');
+                 await newPage.goto(url, { timeout: 20000, waitUntil: 'domcontentloaded' });
+                 
+                 // Extract Name (from h1)
+                 let name = '';
+                 try {
+                     const h1 = await newPage.$('h1');
+                     if(h1) name = await h1.innerText();
+                 } catch(e) { console.log("Error extracting name"); }
+                 
+                 if(!name) {
+                     console.log("Could not find name, skipping.");
+                     await newPage.close();
+                     continue;
+                 }
+                 
+                 // Extract Phone
+                 let phone: string | undefined;
+                 try {
+                     const buttons = await newPage.$$('button');
                      for(const btn of buttons){
                          const label = await btn.getAttribute('aria-label');
                          if(label && label.includes('Phone:')){
@@ -111,17 +127,12 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
                              break;
                          }
                      }
-                 }
-             } catch(e) { console.log("Error extracting phone"); }
+                 } catch(e) { console.log("Error extracting phone"); }
 
-             // Extract Website
-             let website: string | undefined;
-             try {
-                 const websiteBtn = await page.$('a[data-item-id="authority"]');
-                 if(websiteBtn) {
-                     website = await websiteBtn.getAttribute('href') || undefined;
-                 } else {
-                     const anchors = await page.$$('a');
+                 // Extract Website
+                 let website: string | undefined;
+                 try {
+                     const anchors = await newPage.$$('a');
                      for(const a of anchors){
                          const label = await a.getAttribute('aria-label');
                          if(label && (label.includes('Website') || label.includes('website'))){
@@ -129,38 +140,27 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
                              break;
                          }
                      }
+                 } catch(e) { console.log("Error extracting website"); }
+                 
+                 let emails: string[] = [];
+                 if (website) {
+                     console.log(`Found website: ${website}`);
+                     emails = await scrapeEmailsFromWebsite(website);
                  }
-             } catch(e) { console.log("Error extracting website"); }
-             
-             let emails: string[] = [];
-             if (website) {
-                 console.log(`Found website: ${website}`);
-                 emails = await scrapeEmailsFromWebsite(website);
-             }
 
-             places.push({
-                 name: ariaLabel,
-                 phone,
-                 website,
-                 email: emails,
-                 address: "Address extraction requires more specific selectors"
-             });
-             
-             // Go back to list
-             console.log("Going back to results...");
-             await page.goBack();
-             
-             // Wait for list to reappear
-             try {
-                await page.waitForSelector('div[role="feed"]', { timeout: 10000 });
+                 places.push({
+                     name,
+                     phone,
+                     website,
+                     email: emails,
+                     address: "Address extraction requires more specific selectors"
+                 });
+
              } catch(e) {
-                 console.log("Feed not found after going back. Trying to reload...");
-                 // If goBack failed, maybe we are still on the same page?
-                 // Try to find the close button as backup
-                 const closeBtn = await page.$('button[aria-label="Close"]');
-                 if(closeBtn) await closeBtn.click();
+                 console.log(`Error processing ${url}: ${e}`);
+             } finally {
+                 await newPage.close();
              }
-             await page.waitForTimeout(2000); 
         }
     } else {
         console.log("Could not find the results feed.");
