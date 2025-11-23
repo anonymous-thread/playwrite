@@ -2,9 +2,6 @@ import { google } from 'googleapis';
 import * as path from 'path';
 import * as fs from 'fs';
 
-/**
- * Extracts the spreadsheet ID from a Google Sheets URL
- */
 function extractSpreadsheetId(url: string): string {
   const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
   if (!match) {
@@ -13,9 +10,6 @@ function extractSpreadsheetId(url: string): string {
   return match[1];
 }
 
-/**
- * Gets authenticated Google Sheets client using service account
- */
 function getAuthenticatedClient() {
   const serviceAccountPath = process.env.GOOGLE_SERVICE_ACCOUNT_PATH || 
     path.join(process.cwd(), 'service-account.json');
@@ -32,11 +26,6 @@ function getAuthenticatedClient() {
   return google.sheets({ version: 'v4', auth });
 }
 
-/**
- * Fetches data from a Google Sheets URL and returns it as JSON
- * @param url - The Google Sheets URL (must be shared with service account email)
- * @returns Array of row data as objects
- */
 export async function getGoogleSheetsData(url: string): Promise<any[]> {
   try {
     const spreadsheetId = extractSpreadsheetId(url);
