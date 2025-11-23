@@ -16,7 +16,6 @@ async function debugStructure() {
       const html = await items[0].innerHTML();
       console.log('Item HTML:', html);
       
-      // Check for anchor tag
       const anchor = await items[0].$('a');
       if (anchor) {
           const href = await anchor.getAttribute('href');

@@ -14,7 +14,6 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
     await page.fill('#searchboxinput', searchQuery);
     await page.keyboard.press('Enter');
 
-    // Wait for results to load
     await page.waitForSelector('div[role="feed"]', { timeout: 10000 }).catch(() => {
         console.log("Feed not found, might be a single result or different layout.");
     });
@@ -25,8 +24,6 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
     
     const feed = await page.$('div[role="feed"]');
     if(feed){
-        // Scroll to load more results
-        // Scroll to load more results
         let lastHeight = await page.evaluate((feedDiv) => feedDiv.scrollHeight, feed);
         let noChangeCount = 0;
 
@@ -45,7 +42,6 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
             } else {
                 noChangeCount = 0;
                 lastHeight = newHeight;
-                // Optional: Check if "You've reached the end of the list" is visible
                 const endOfList = await page.$('span:has-text("You\'ve reached the end of the list")');
                 if (endOfList) {
                     console.log("End of list detected.");
@@ -54,30 +50,8 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
             }
         }
         
-        // Get all items first
         const items = await feed.$$('div[role="article"]');
         console.log(`Found ${items.length} items. Processing...`);
-
-        // We need to iterate carefully. Clicking an item might change the view.
-        // Strategy: 
-        // 1. Collect all aria-labels or unique identifiers first if possible.
-        // 2. Or, click one, scrape, go back.
-        // Going back in Maps can be tricky. 
-        // Better Strategy for stability:
-        // Iterate through the list. For each item:
-        // - Click it.
-        // - Wait for details panel.
-        // - Extract Phone and Website.
-        // - If website, call scrapeEmailsFromWebsite.
-        // - Click "Back to results" or find the close button for the details.
-        
-        // Note: The list of items might become stale if we navigate away or the DOM updates.
-        // We will try to click by index if possible, but selectors are dynamic.
-        
-        // Let's try a simpler approach first: Extract what is visible on the card.
-        // Phone and Website are usually NOT on the card in the list view. They require a click.
-        
-        // Collect all URLs first
         const allItems = await feed.$$('div[role="article"]');
         console.log(`Found ${allItems.length} items. Collecting URLs...`);
         
@@ -91,11 +65,8 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
         }
         console.log(`Collected ${placeUrls.length} URLs. Starting detailed scraping...`);
 
-        // Close the main search page to save resources, or keep it open if needed. 
-        // We can close it since we have the URLs.
         await page.close();
 
-        // Process URLs
         for (const url of placeUrls) {
              console.log(`Processing URL: ${url}`);
              const newPage = await context.newPage();
@@ -103,7 +74,6 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
              try {
                  await newPage.goto(url, { timeout: 20000, waitUntil: 'domcontentloaded' });
                  
-                 // Extract Name (from h1)
                  let name = '';
                  try {
                      const h1 = await newPage.$('h1');
@@ -116,7 +86,6 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
                      continue;
                  }
                  
-                 // Extract Phone
                  let phone: string | undefined;
                  try {
                      const buttons = await newPage.$$('button');
@@ -129,7 +98,6 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
                      }
                  } catch(e) { console.log("Error extracting phone"); }
 
-                 // Extract Website
                  let website: string | undefined;
                  try {
                      const anchors = await newPage.$$('a');
