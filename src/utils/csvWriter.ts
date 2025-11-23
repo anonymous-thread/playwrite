@@ -1,5 +1,6 @@
 import { createObjectCsvWriter } from 'csv-writer';
 import * as fs from 'fs';
+import * as path from 'path';
 
 export async function writeToCsv<T extends Record<string, any>>(data: T[], filename: string): Promise<void> {
   if (!data || data.length === 0) {
@@ -7,8 +8,10 @@ export async function writeToCsv<T extends Record<string, any>>(data: T[], filen
     return;
   }
 
-  const dir = filename.substring(0, filename.lastIndexOf('/'));
-  if (dir) {
+  const fullPath = `outfile/${filename}`;
+  const dir = path.dirname(fullPath);
+  
+  if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
@@ -26,13 +29,13 @@ export async function writeToCsv<T extends Record<string, any>>(data: T[], filen
     }
     return transformed;
   });
-
+  
   const csvWriter = createObjectCsvWriter({
-    path: filename,
+    path: fullPath,
     header: headers,
   });
 
   await csvWriter.writeRecords(records);
-  console.log(`Data saved to ${filename}`);
+  console.log(`Data saved to ${fullPath}`);
 }
 
