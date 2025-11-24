@@ -1,6 +1,6 @@
 export const emailConfig = {
   sender: {
-    name: 'Vanshika Rajput',
+    name: 'Prince Raj',
     email: 'ops.glitch.hack@gmail.com',
     phone: '+91 9220994117',
     role: 'DEVELOPER',

@@ -7,7 +7,23 @@ async function testEmail() {
   const data = [
     {
       email: 'princerajsde@gmail.com',
-      partnerName: 'Test Institute'
+      partnerName: 'Prince'
+    },
+    {
+      email: 'anuprahangdale201999@gmail.com',
+      partnerName: 'Anup'
+    },
+    {
+      email: 'theakashkumar01@gmail.com',
+      partnerName: 'Akash'
+    },
+    {
+      email: 'harshsukhijacse@gmail.com',
+      partnerName: 'Harsh'
+    },
+    {
+      email:"vanshika0606rajput@gmail.com",
+      partnerName:"Vanshika"
     }
   ];
 
