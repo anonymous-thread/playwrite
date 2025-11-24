@@ -3,8 +3,8 @@ import EmailProvider from '../services/email/providers/EmailProvider';
 import { emailConfig } from '../config/email.config';
 
 interface EmailData {
-  instituteName?: string;
-  email: string;
+  partnerName?: string;
+  email: string | string[];
   [key: string]: any;
 }
 
@@ -31,7 +31,7 @@ export class BulkMailer {
     const safeSenderEmail = senderEmail || '';
     const safeSenderPhone = senderPhone || '';
     const safeSenderRole = senderRole || '';
-    const safeEmailSubject = emailSubject || '';
+    const safeEmailSubject = emailSubject || '@noReply | OPS Glitch';
     const safeCompanyName = companyName || '';
     const safeCompanyTagline = companyTagline || '';
     const safeLogoUrl = logoUrl || '';
@@ -41,10 +41,11 @@ export class BulkMailer {
 
     for (let i = 0; i < this.data.length; i++) {
       const row = this.data[i];
+      const { email, ...templateData } = row;
       
       try {
         const html = this.templateService.render({
-          instituteName: row.instituteName || 'Valued Partner',
+          partnerName: row.partnerName || 'Valued Partner',
           senderName: safeSenderName,
           senderEmail: safeSenderEmail,
           senderPhone: safeSenderPhone,
@@ -53,12 +54,12 @@ export class BulkMailer {
           companyTagline: safeCompanyTagline,
           senderRole: safeSenderRole,
           websiteUrl: safeWebsiteUrl,
-          ...row
+          ...templateData
         });
 
         await this.emailProvider.send({
-          to: row.email,
-          subject: emailSubject,
+          to: Array.isArray(row.email) ? row.email.join(',') : row.email,
+          subject: safeEmailSubject,
           html,
           from: senderEmail
         });

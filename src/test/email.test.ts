@@ -7,7 +7,7 @@ async function testEmail() {
   const data = [
     {
       email: 'princerajsde@gmail.com',
-      instituteName: 'Test Institute'
+      partnerName: 'Test Institute'
     }
   ];
 

@@ -1,5 +1,5 @@
 export interface PlaceData {
-  name: string;
+  partnerName: string;
   address?: string;
   rating?: string;
   reviews?: string;

@@ -117,7 +117,7 @@ export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]
                  }
 
                  places.push({
-                     name,
+                     partnerName: name,
                      phone,
                      website,
                      email: emails,
