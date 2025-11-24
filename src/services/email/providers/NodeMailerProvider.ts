@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { EmailProvider, EmailOptions } from './EmailProvider';
+import { ENV } from '../../../context/env';
 
 export class NodeMailerProvider extends EmailProvider {
   private transporter: nodemailer.Transporter;
@@ -7,19 +8,19 @@ export class NodeMailerProvider extends EmailProvider {
   constructor() {
     super();
     this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
+      host: ENV.SMTP.HOST,
+      port: ENV.SMTP.PORT,
       secure: false,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
+        user: ENV.SMTP.USER,
+        pass: ENV.SMTP.PASS
       }
     });
   }
 
   async send(options: EmailOptions): Promise<void> {
     await this.transporter.sendMail({
-      from: options.from || process.env.SMTP_USER,
+      from: options.from || ENV.SMTP.USER,
       to: options.to,
       subject: options.subject,
       html: options.html

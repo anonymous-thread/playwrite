@@ -26,6 +26,17 @@ export class BulkMailer {
       company: { name: companyName, tagline: companyTagline, logoUrl, websiteUrl }
     } = emailConfig;
 
+    // Ensure all values are strings for the template
+    const safeSenderName = senderName || '';
+    const safeSenderEmail = senderEmail || '';
+    const safeSenderPhone = senderPhone || '';
+    const safeSenderRole = senderRole || '';
+    const safeEmailSubject = emailSubject || '';
+    const safeCompanyName = companyName || '';
+    const safeCompanyTagline = companyTagline || '';
+    const safeLogoUrl = logoUrl || '';
+    const safeWebsiteUrl = websiteUrl || '';
+
     console.log(`Starting to send ${this.data.length} emails...`);
 
     for (let i = 0; i < this.data.length; i++) {
@@ -34,14 +45,14 @@ export class BulkMailer {
       try {
         const html = this.templateService.render({
           instituteName: row.instituteName || 'Valued Partner',
-          senderName,
-          senderEmail,
-          senderPhone,
-          logoUrl,
-          companyName,
-          companyTagline,
-          senderRole,
-          websiteUrl,
+          senderName: safeSenderName,
+          senderEmail: safeSenderEmail,
+          senderPhone: safeSenderPhone,
+          logoUrl: safeLogoUrl,
+          companyName: safeCompanyName,
+          companyTagline: safeCompanyTagline,
+          senderRole: safeSenderRole,
+          websiteUrl: safeWebsiteUrl,
           ...row
         });
 
