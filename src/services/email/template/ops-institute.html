@@ -1,0 +1,183 @@
+<html>
+
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color:#000;">
+
+    <p>Dear {{instituteName}},</p>
+
+    <p>
+        My name is <b>{{senderName}}</b>, and I am one of the creators of <b>OPS Glitch</b> — a platform designed to
+        build
+        <strong>real problem-solving, debugging, and secure coding skills</strong> in students through hands-on
+        challenges.
+    </p>
+
+    <!-- HIGHLIGHTED PITCH SECTION -->
+    <p style="padding:12px; background:#f3f3f3; border-left:4px solid #00d492;">
+        <b>Why we’re reaching out:</b><br>
+        Most students struggle not with coding — but with <b>debugging</b>, <b>logical thinking</b>, and understanding
+        <b>how real-world issues break applications</b>. OPS Glitch helps institutes strengthen these practical skills
+        without needing any setup, installations, or additional faculty load.
+    </p>
+
+    <p><b>Quick Demo:</b><br>
+        <a href="https://www.opsglitch.com/assets/video/contest.mp4" style="color:#00d492; font-weight:bold;"
+            target="_blank">
+            ▶ Watch Sample OPS Glitch Challenge (1-minute demo)
+        </a>
+    </p>
+
+    <p><b>What OPS Glitch Offers:</b></p>
+    <ul>
+        <li>Realistic debugging challenges across frontend, backend, APIs & security</li>
+        <li>Hands-on tasks aligned with industry expectations</li>
+        <li>Scoreboard, progress tracking & student analytics</li>
+        <li>Completely free for institutes & students</li>
+    </ul>
+
+    <p><b>Perfect For:</b></p>
+    <ul>
+        <li>Web Development & Full-Stack Courses</li>
+        <li>Cybersecurity & Ethical Hacking Programs</li>
+        <li>Software Engineering / Application Development</li>
+        <li>Technical Interview Preparation</li>
+    </ul>
+
+    <p>
+        I would be happy to schedule a short walkthrough and show how OPS Glitch can integrate
+        smoothly into your existing curriculum.
+    </p>
+
+    <p>
+        Thank you for your time.<br>
+        I look forward to your response.
+    </p>
+
+    <!-- SIGNATURE BLOCK -->
+    <table cellpadding="0" cellspacing="0" border="0" width="70%"
+        style="background:#000; font-family:Arial; color:#00d492; margin-top:25px;">
+        <tr>
+
+            <!-- LEFT SIDE -->
+            <td width="40%" height="20%" style="padding:5px 20px; vertical-align:middle; text-align:center;">
+
+                <!-- Dynamic Logo -->
+                <img src="{{logoUrl}}" alt="Logo" style="width:100px; display:block; margin:0 auto 0px auto;">
+
+                <div style="font-size:25px; font-weight:bold; margin-bottom:6px;">
+                    {{companyName}}
+                </div>
+
+                <div style="font-size:9px; letter-spacing:4px;">
+                    {{companyTagline}}
+                </div>
+            </td>
+
+            <!-- MIDDLE DIVIDER -->
+            <td width="5%" align="center" style="text-align:center; vertical-align:middle;">
+                <table align="center" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td style="padding:0 4px;">
+                            <table cellpadding="0" cellspacing="0" style="background:#00d492; width:3px; height:120px;">
+                                <tr>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style="padding:0 4px;">
+                            <table cellpadding="0" cellspacing="0" style="background:#00d492; width:3px; height:180px;">
+                                <tr>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style="padding:0 4px;">
+                            <table cellpadding="0" cellspacing="0" style="background:#00d492; width:3px; height:120px;">
+                                <tr>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+
+            <!-- RIGHT SIDE -->
+            <td width="40%" style="padding:5px 20px; vertical-align:middle;text-align:center;">
+                <table cellpadding="0" cellspacing="10" border="0" style="color:#00d492; font-size:15px;">
+
+                    <!-- Name & Role -->
+                    <tr>
+                        <td colspan="2" style=" font-size:26px; font-weight:bold; text-align:left;">
+                            {{senderName}}<br>
+                            <span style="font-size:14px; letter-spacing:4px;">{{senderRole}}</span>
+                        </td>
+                    </tr>
+
+                    <!-- Phone -->
+                    <tr>
+                        <td>
+                            <div style="
+                            width:20px;
+                            height:20px;
+                            border:2px solid #00d492;
+                            border-radius:50%;
+                            text-align:center;
+                            font-size:14px;
+                            color:#00d492;
+                            line-height:20px;
+                        ">📞</div>
+                        </td>
+                        <td>{{senderPhone}}</td>
+                    </tr>
+
+                    <!-- Email -->
+                    <tr>
+                        <td>
+                            <div style="
+                            width:20px;
+                            height:20px;
+                            border:2px solid #00d492;
+                            border-radius:50%;
+                            text-align:center;
+                            font-size:14px;
+                            color:#00d492;
+                            line-height:20px;
+                        ">📧</div>
+                        </td>
+                        <td>
+                            <a href="mailto:{{senderEmail}}" style="color:#00d492; text-decoration:none;">
+                                {{senderEmail}}
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Website -->
+                    <tr>
+                        <td>
+                            <div style="
+                            width:20px;
+                            height:20px;
+                            border:2px solid #00d492;
+                            border-radius:50%;
+                            text-align:center;
+                            font-size:14px;
+                            color:#00d492;
+                            line-height:20px;
+                        ">🌐</div>
+                        </td>
+                        <td>
+                            <a href="{{websiteUrl}}" style="color:#00d492; text-decoration:underline;">
+                                {{websiteUrl}}
+                            </a>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+
+        </tr>
+    </table>
+
+</body>
+
+</html>
