@@ -3,6 +3,7 @@ import { scrapeGoogleMaps } from '../scraper/googleMap/googleMaps';
 import { writeToCsv } from '../utils/csvWriter';
 import { getGoogleSheetsData } from '../controllers/googleSheetsController';
 import { googleMapConfig } from '../config/googleMap.config';
+import sendEmail, { EmailData } from '../services/email/emailService';
 
 interface QueryData {
   pincode: string;
@@ -21,7 +22,8 @@ export class GoogleMapProcessor implements IProcessor {
   async run(options: Record<string, any>): Promise<void> {
     let queryArr: string[] = [];
     const query = options.query;
-    const toNotSaveInFile = options.toNotSaveInFile && "false";
+    const toSaveInFile = options.toSaveInFile === "true";
+    const toSendEmail = options.toSendEmail === "true";
     
     if (!query) {
       console.log('Missing: "query" option is not given, moving forward with spreadsheet.');
@@ -40,12 +42,17 @@ export class GoogleMapProcessor implements IProcessor {
         
         const data = await scrapeGoogleMaps(currentQuery);
         
-        if (data.length > 0 && toNotSaveInFile !== "true") {
+        if (data.length > 0) {
           console.log(`Found ${data.length} places.`);
-          const filename = queryArr.length > 1 
-            ? `output-${i + 1}.csv` 
-            : 'output.csv';
-          await writeToCsv(data, filename);
+          if(toSendEmail){
+            await sendEmail(data as EmailData[]);
+          }
+          if(toSaveInFile){
+            const filename = queryArr.length > 1 
+              ? `output-${i + 1}.csv` 
+              : 'output.csv';
+            await writeToCsv(data, filename);
+          }
         } else {
           console.log('No places found.');
         }

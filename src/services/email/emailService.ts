@@ -3,7 +3,7 @@ import { BulkMailer } from '../../controllers/mailSender.controller';
 import TemplateService from '../../services/email/TemplateService';
 import NodeMailerProvider from '../../services/email/providers/NodeMailerProvider';
 
-interface EmailData {
+export interface EmailData {
   email: string | string[];
   partnerName: string;
 }
