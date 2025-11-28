@@ -1,3 +1,3 @@
 export const config = {
-    headless: false,
+    headless: true,
 }
