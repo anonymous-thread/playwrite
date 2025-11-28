@@ -1,9 +1,10 @@
 import { chromium } from 'playwright';
 import { PlaceData } from '../../types';
 import { scrapeEmailsFromWebsite } from './websiteScraper';
+import { config } from '../../config/conf';
 
 export async function scrapeGoogleMaps(searchQuery: string): Promise<PlaceData[]> {
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({ headless: config.headless });
   const context = await browser.newContext();
   const page = await context.newPage();
 
