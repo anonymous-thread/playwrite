@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts"
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "serve": "nodemon --exec ts-node src/index.ts"
   },
   "keywords": [
     "prince",
@@ -19,15 +20,20 @@
     "commander": "^14.0.2",
     "csv-writer": "^1.6.0",
     "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "googleapis": "^166.0.0",
     "minimist": "^1.2.8",
     "nodemailer": "^7.0.10",
-    "playwright": "^1.56.1"
+    "nodemon": "^3.1.11",
+    "playwright": "^1.56.1",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.5",
     "@types/minimist": "^1.2.5",
     "@types/node": "^24.10.0",
     "@types/nodemailer": "^7.0.4",
+    "@types/uuid": "^10.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }

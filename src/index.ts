@@ -1,30 +1,20 @@
-import { Command } from 'commander';
-import minimist from 'minimist';
-import { ProcessorRegistry } from './processors';
+import express from 'express';
+import routes from './routes';
 
-const program = new Command();
+const app = express();
+const PORT = 3000;
 
-program
-  .version('1.0.0')
-  .description('Web scraper CLI')
-  .requiredOption('-p, --processor <type>', 'Processor to use (e.g., googlemap)')
-  .allowUnknownOption()
-  .argument('[args...]')
-  .action(async (args, options) => {
-    const opts = program.opts();
-    const processor = opts.processor;
-    
-    const parsedArgs = minimist(process.argv.slice(2));
-    
-    const processorInstance = ProcessorRegistry.get(processor);
-    
-    if (!processorInstance) {
-      console.error(`Error: Processor "${processor}" not found.`);
-      console.error('Available processors:', 'googlemap');
-      process.exit(1);
-    }
+// Middleware
+app.use(express.json());
 
-    await processorInstance.run(parsedArgs);
-  });
+// Routes
+app.use('/', routes);
 
-program.parse(process.argv);
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not Found' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
